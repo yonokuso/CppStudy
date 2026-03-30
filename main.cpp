@@ -5,132 +5,98 @@ using namespace std;
 // - 상속성
 // - 은닉성
 // - 다형성
+
+// 은닉성 - 캡슐화
+// 몰라도 되는 것은 깔끔하게 숨기겠다!
+// 숨기는 이유
+// 1) 정말 위험하고 건드리면 안되는 경우
+// 2) 다른 경로로 접근하길 원하는 경우
+// 
+// ex)자동차
+// - 핸들, 페달, 문, 엔진,..
+// 일반 구매자 입장에서 사용하는 것?
+// - 핸들/페달/문 등..
+// 구매자가 몰라도 되는 것(오히려건드리면 큰일남
+// - 엔진, 각종 전기선...
 //
+// public : 누구한테나 공개
+// protected : 나의 자손들한테만 허락
+// private : 나만 사용할거임(class car 내부에서만)
 
-// 메모리
-// 생성자 소멸자 불르는 순서는 이런느낌
-// [[ Player ]]
-// [ Knight ]
+// 상속 접근 지정자 : 다음 세대한테 부모님의 유산을 어떻게 물려줘야?
+// 부모님한테 물려받은 유산을 꼭 나의 자손들한테도 똑같이 물려줘야 하진 않음
+// public : 공개적 상속 (부모님의 유산설계 그대로) public->public protected->protected
+// protected : 보호받은 상속 - 내 자손들한테만 물려줌 (public->protected protected->protected)
+// private : 개인적인 상속, 나까지만 잘 쓰고 자손들한테는 아예 안물려줌 (public -> private protected->private )
+// 아무것도 안 쓸시 자동으로 private으로 됨
+// public을 거의 쓰고 아주가끔 private을 씀
 
-// 상속(Inheritance) ? 부모 -> 자식에게 유산을 물려주는 것
-
-// 생성자(N) / 소멸자(1)
-// 생성자는 탄생을 기념해서 호출되는 함수?
-// -> Knight를 생성하면 -> Player의 생성자? Knight의 생성자?
-// 솔로몬의 선택! -> 둘다 호출하자
-// 생성자랑 소멸자는 안물려줌, 각자 잇음
-// 자식이 먼저 소멸 -> 그다음 부모 소멸
-
-// GameObject
-// - Creature
-// -- Player, Monster, Npc, Pet
-// - Projectile
-// --Arrow, Fireball
-// - Env
-
-// Item
-// - Weapon
-// -- Sword..
-// - Armor
-
-class Player
+class Car
 {
-public:
-	Player()
-	{
-		_hp = 0; // 초기화를 해줘야함
-		_attack = 0;
-		_defence = 0;
+public: // (멤버)접근 지정자
+	void MoveHandle(){}
+	void PushPedal(){}
+	void OpenDoor(){}
 
-		cout << "Player() 기본 생성자 호출" << endl;
+	void TurnKey()
+	{
+		RunEngine();
 	}
 
-	Player(int hp)
-	{
-		_hp = hp; // 초기화를 해줘야함
+protected:
+	void RunEngine() {} // 엔진을 구동
 
-		cout << "Player(int hp) 기본 생성자 호출" << endl;
-	}
-
-	~Player()
-	{
-		cout << "~Player() 소멸자 호출" << endl;
-	}
-
-	void Move() { cout << "Player Move 호출" << endl; }
-	void Attack() { cout << "Player Attack 호출" << endl; }
-	void Die() { cout << "Player Die 호출" << endl; }
+private:
+	void DisassembleCar(){}// 차 분해
+	void ConnectCircuit(){} // 전기선 연결
 
 public:
-	int _hp;
-	int _attack;
-	int _defence;
+	
+
 };
 
-class Knight : public Player
+class SuperCar : Car // 상속 접근 지정자
 {
-public: 
-	Knight()
+public :
+	void PushRemoteController()
 	{
-		/*
-		선처리 영역
-		여기서 Player 기본 생성자 호출
-		*/
-		_stamina = 0;
-		cout << "Knight() 기본 생성자 호출" << endl;
+		RunEngine();
 	}
-
-	// 부모 생성자를 지정해주고 싶을떄
-	Knight(int stamina) : Player(100)
-	{
-		/*
-		선처리 영역
-		여기서 Player 기본 생성자 호출
-		*/
-		_stamina = 0;
-		cout << "Knight() 기본 생성자 호출" << endl;
-	}
-
-	~Knight()
-	{
-		cout << "~Knight() 소멸자 호출" << endl;
-	}
-	/*
-	후처리 영역
-	여기서 ~Player 소멸자 호출
-	*/
-
-	// 재정의 : 부모님의 유산은 거부하고 새로운 이름으로 만든?
-	void Move() { cout << "Knight Move 호출" << endl; }
-
-
-public:
-	int _stamina;
 };
 
-class Mage : public Player
+
+// 캡슐화 - 연관된 데이터와 함수를 논리적으로 묶어놓은 것
+class Berserker
 {
 public:
 
-public:
-	int _sp;
+	int GetHp() { return _hp; }
 
+	void SetHp(int hp)
+	{
+		_hp = hp;
+		if (_hp <= 50)
+			SetBerserkerMode();
+	}
+
+	// 사망: 체력이 50이하로 떨어지면 버서커모드 발동(강해짐)
+
+private:
+	void SetBerserkerMode()
+	{
+		cout << "매우 강해짐!" << endl;
+	}
+
+private:
+	int _hp = 100;
 };
+
 
 int main()
 {
-	Knight k;
+	Berserker b;
+	b.SetHp(20);
 
-	k._hp = 100;
-	k._attack = 10;
-	k._defence = 5;
-	k._stamina = 50;
-
-	k.Move(); // 재정의 버전
-	k.Player::Move(); // 부모 버전
-
-	k.Attack();
-	k.Die();
 
 	return 0;
 }
