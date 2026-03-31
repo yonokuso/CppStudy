@@ -1,114 +1,90 @@
 #include <iostream>
 using namespace std;
 
-// 객체지향
-// - 상속성
-// - 은닉성 = 캡슐화
-// - 다형성
-
-// 다형성(Polymolphism = Poly+morph) = 겉은 똑같은데, 기능이 다르게 동작한다
-// - 오버로딩(Overloading) = 함수 중복 정의 = 함수 이름의 재사용
-// - 오버라이딩(Overriding) = 재정의 = 부모 클래스의 함수를 자식 클래스에서 재정의
-
-// 바인딩(Binding) = 묶는다
-// - 정적 바인딩(Static Binding) : 컴파일 시점에 결정
-// - *동적 바인딩(Dynamic Binding) : 실행 시점에 결정(면접에 자주 나옴)
+// 초기화 리스트
+// 멤버 변수 초기화 ? 다양한 문법이 존재
+// 귀찮은데 초기화를 왜 해야할까? 
+// - 버그 예방
+// - 포인터 등 주소값이 연루되어 있을 경우
 //
-// 일반 함수들은 정적 바인딩을 사용함
-// 동적 바인딩을 원한다면? -> 가상 함수(virtual function)
+// 초기화 방법
+// - 생성자 내에서 
+// - 초기화 리스트
+// - C++11 문법
+//
+// 초기화 리스트 
+// - 일단 상속 관계에서 원하는 부모 생성자 호출할 때 필요하다
+// - 생성자 내에서 초기화 vs 초기화 리스트
+// -- 일반 변수는 별 차이 없음
+// -- 멤버 타입이 클래스인 경우 차이가 난다
+// -- 정의함과 동시에 초기화가 필요한 경우 (참조 타입, const 타입)
+//
 
-// 그런데 실제 객체가 어떤 타입인지 어떻게 알고 알아서 가상함수를 호출해준걸까>
-// - 가상함수 테이블이 있음(vftable)
-// .vftable [] 4바이트(32) 8바이트(64)
-// [ VMove ]  [ VDie ]... 이렇게돼있음
+class Inventory
+{
+public:
+	Inventory() { cout << "Inventory()" << endl; }
+	Inventory(int size) { cout << "Inventory(int size)" << endl; }
 
-// 순수가상함수 : 구현은 없고 '인터페이스'만 전달하는 용도로 사용하고 싶을떄
+	~Inventory() { cout << "~Inventory()" << endl; }
 
-// 추상 클래스 : 순수 가상 함수가 1개 이상 포함되면 바로 추상 클래스로 간주
-// 직접적으로 객체를 만들 수 없게 됨.
+public:
+	int _size = 10;
+};
 
 class Player
 {
 public:
-	Player()
-	{
-		_hp = 100;
-	}
+	Player() {}
+	Player(int id) {}
 
-	void Move() { cout << "Move Player!" << endl; }
-	
-	//void Move(int a) { cout << "Move Player (int)" << endl; }
 
-	virtual void VMove() { cout << "VMove Player !" << endl; }
-	virtual void VDie() { cout << "VDie Player !" << endl; }
-
-	// 순수 가상 함수 - 재정의를 해야함
-	virtual void VAttack() = 0;
 
 public:
-	int _hp;
 
 };
+
+// Is-A (Knight Is-A Player? 기사는 플레이어다) OK->상속관계
+// Is-A (Knight Is-A Inventory? 기사는 인벤토리인가?) no->포함관계
+// 
+// Has-A (Knight Has-A Inventory? 기사는 인벤을 갖고 있다) OK->포함관계 
+
 
 class Knight : public Player
 {
 public:
-	Knight()
+	Knight() : Player(1), _hp(100), _inventory(20), _hpRef(_hp), _hpConst(100)
+		/*
+		* 선처리 영역
+		* Inventory()
+		*/
 	{
-		_stamina = 100;
+		_hp = 100;
+		//_inventory = Inventory(20); //두번호출두번소멸됨
+		// 초기화를 할떄는 내부에서 하지 말고 시작할때 하기
 
+		//_hpRef = _hp;
+		//_hpConst = 100;
 	}
 
-	void Move() { cout << "Move Knight !" << endl; } //오버로딩
-
-	// 가상 함수는 재정의를 하더라도 가상 함수다!
-	virtual void VMove() { cout << "VMove Knight !" << endl; }
-	virtual void VDie() { cout << "VDie Knight !" << endl; }
-
-	virtual void VAttack() { cout << "VAttack Knight !" << endl; }
-
-public :
-	int _stamina;
-};
-
-class Mage : public Player
-{
 public:
-	//void Move()
-public:
-	int _mp;
+	int _hp; // 초기화안하면 쓰레기값이 들어가있음
+	Inventory _inventory;
+
+	int& _hpRef;
+	const int _hpConst;
 };
-
-
-
-// [ [ Player ] ]
-//   [ knight ]
-
-void MovePlayer(Player* player)
-{
-	//Knight* k = (Knight*)player;
-	//k->_stamina = 100;
-
-	player->VMove(); // Move Knight !
-	player->VDie();
-
-}
-
-void MoveKnight(Knight* knight)
-{
-	knight->Move();
-
-}
 
 int main()
 {
-	//Player p; - 순수가상함수때문에 독립적으로 존재 못힘
-	//MovePlayer(&p); // 플레이어는 플레이어 -yes
-	//MoveKnight(&p); // 플레이어는 기사다 -no
-
 	Knight k;
-	//MoveKnight(&k); // 기사는 기사다 -yes
-	MovePlayer(&k); // 이건 가능 (플레이어는 기사니까)
+
+	cout << k._hp << endl;
+
+	if (k._hp < 0)
+	{
+		cout << "Knight is Dead" << endl;
+	}
  
 	return 0;
 }
