@@ -1,151 +1,86 @@
 #include <iostream>
 using namespace std;
 
-// 연산자 오버로딩(Operator Overloading)
-// 
-// 복사 대입연산자
-// - 대입 연산자가 나온 김에 [복사 대입 연산자] 에 대해 알아보자
-// 용어가 좀 헷갈린다 [복사 생성자] [대입 연산자] [복사 대입 연산자]
-// - 복사 대입 연산자 = 대입 연산자 중, 자기 자신의 참조 타입을 인자로 받는 것
-// 
-// 
-// 기타
-//  - 모든 연산자를 다 오버로딩 할 수 있는 것은 아니다 (:: , . *이런거안됨)
-// 모든 연산자가 다 2개 항이 있는 것은 아님. ++ --가 대표적(단항 연산자)
-// - 증감 연산자 ++ --
-// -- 전위형 (++a) operator++()
-// -- 후위형 (a++) operator++(int)
+// 객체지향 마무리
+//
+// 1) struct va class
+
+// C++에서는 종이 한장차이
+// struct 는 기본 접근 지정자가 public, class는 private임
+// 왜 이렇게 했을까? - c++은 c언어에서 파생되어 발전했기 때문에, 호환성을 지키기 위함.
+// -> struct는 그냥 구조체(데이터 묶음)을 표현하는 용도
+// -> class는 객체 지향 프로그래밍의 특징을 나타내는 용도
+//
 //
 
-class Position
+
+struct TestStruct
 {
-public: 
-
-	//Position(const Position& arg) // 복사 생성자
-	//{
-
-	//}
-
-	//RET FUN_NAME(ARG_LIST)
-	Position operator+(const Position& arg)
-	{
-		Position pos;
-		pos._x = _x + arg._x;
-		pos._y = _y + arg._y;
-		
-		return pos;
-	}
-	
-	Position operator+(int arg)
-	{
-		Position pos;
-		pos._x = _x + arg;
-		pos._y = _y + arg;
-		
-		return pos;
-	}
-
-	bool operator==(const Position& arg)
-	{
-		return _x == arg._x && _y == arg._y;
-	}
-
-	Position& operator=(int arg)
-	{
-		_x = arg;
-		_y = arg;
-
-		//Position* this = 내자신의 주소;
-		return *this; // 내 자신의 주소
-
-	}
-
-	// [복사 생성자] [복사 대입 연산자] 등 특별 대우를 받는 이유는
-	// 말 그대로 객체가 '복사'되길 원하는 특징 때문
-	//  - 동적할당 시간에 더 자세히 알아볼 것
-
-	Position& operator=(const Position& arg)
-	{
-		_x = arg._x;
-		_y = arg._y;
-		
-		return *this;
-	}
-
-	Position& operator++()
-	{
-		_x++;
-		_y++;
-
-		return *this;
-	}
-
-	Position& operator++(int)
-	{
-		Position ret = *this;
-		_x++;
-		_y++;
-
-		return ret;
-	}
-
-public:
-
-	int _x;
-	int _y;
+	// 
+	int _a;
+	int _b;
 };
 
-//void operator=(const Position& a, int b)
-//{
-//	a._x = b;
-//	a._y = b;
-//}
-
-Position operator+(int a, const Position& b)
+class TestClass
 {
-	Position ret;
+	// 기본 private
+	int _a;
+	int _b;
+};
 
-	ret._x = b._x + a;
-	ret._y = b._y + a;
+// static 변수, static 함수 (static = 정적 = 고정된)
 
-	return ret;
-}
+class Marine
+{
+public:
+	// 특정 마린 객체에 종속적
+	int _hp;
+
+	void TakeDamage(int damage)
+	{
+		_hp -= damage;
+	}
+
+	// 모든 마린 대표, 
+	static void SetAttack()
+	{
+		s_attack = 100;
+	}
+
+	// 특정 마린 객체와 무관
+	// 마린이라는 '클래스' 자체와 연관
+	static int s_attack; // 설계도상으로만 존재
+};
+
+// static 변수의 메모리는
+// 초기화하면 .data
+// 초기화 안 하면 .bss
+
+int Marine::s_attack = 0; // 외부 선언
+// marine 클래스에만 묶여있는
 
 int main()
 {
-	int a = 1;
-	int b = 2;
-	int c = ++(++a);
+	Marine m1;
+	m1._hp = 40;
+	m1.TakeDamage(10);
 
-	
-	Position pos;
-	pos._x = 0;
-	pos._y = 0;
+	Marine::s_attack = 6;
+	//m1.s_attack = 6;
 
-	Position pos2;
-	pos2._x = 1;
-	pos2._y = 1;
+	Marine m2;
+	m2._hp = 40;
+	//m2.s_attack = 6;
 
-	Position pos3 = pos + pos2;
-	Position pos4 = pos3 + 1;
-	pos3.operator+(1);
+	// 마린 공격력 업그레이드 완료! (아카데미에서 업그레이드)
+	Marine::s_attack = 7;
+	Marine::SetAttack();
 
-	// 이렇게 커스텀 클래스를 사용해 비교할 일이 종종 생김
-	bool isSame = (pos3 == pos4); // 같다는걸 어떻게 받아들일지?
-
-	Position pos5;
-	pos5 = (pos5 = 5); // 이건 대입
+	//m1.s_attack = 7;
+	//m2.s_attack = 7;
+	// 모든 마린의 공격력을 바꿔주는 것은 어려움
+	// 공격력은 변하지 않고 전부 같음
 
 
-	// (const Pos&)줘-  (Pos)복사값 줄게-
-	// 임시객체를 만들어서 고차겠다?
-	// 고치겠다는 의도가 담겨있음?
-	pos5 = pos3++;
-
-	++(++pos3); // 가능
-	// 타입이 일치하지 않음에도 참조값에 const를 붙이면
-	// 포지션의 복사값을 우여곡절 끝에 받을 수 있음
-	//pos3 = pos.operator+(pos2);
- 
 	return 0;
 }
