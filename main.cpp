@@ -2,8 +2,7 @@
 using namespace std;
 
 // 객체지향 마무리
-//
-// 1) struct va class
+// 1) struct vs class
 // C++에서는 종이 한장차이
 // struct 는 기본 접근 지정자가 public, class는 private임
 // 왜 이렇게 했을까? - c++은 c언어에서 파생되어 발전했기 때문에, 호환성을 지키기 위함.
