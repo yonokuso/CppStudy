@@ -14,7 +14,6 @@ using namespace std;
 
 struct TestStruct
 {
-	// 
 	int _a;
 	int _b;
 };
@@ -57,6 +56,21 @@ public:
 int Marine::s_attack = 0; // 외부 선언
 // marine 클래스에만 묶여있는
 
+class Player
+{
+public:
+	int _id;
+
+};
+
+int GenerateId()
+{
+	// 정적 지역 객체 - data에올라감
+	static int s_id;
+
+	return s_id++;
+}
+
 int main()
 {
 	Marine m1;
@@ -79,6 +93,10 @@ int main()
 	// 모든 마린의 공격력을 바꿔주는 것은 어려움
 	// 공격력은 변하지 않고 전부 같음
 
+	// 스택메모리가 아닌 전혀이상한곳..
+	// data영역에 올라가있음
+	static int id = 10;
+	int a = id;
 
 	return 0;
 }
